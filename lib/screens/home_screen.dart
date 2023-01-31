@@ -10,20 +10,17 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  static const twentyFiveMinutes = 1500;
+  static const twentyFiveMinutes = 2;
   int totalSeconds = twentyFiveMinutes;
   bool isRunning = false;
+  bool isReady = true;
   int totalPomodoros = 0;
   late Timer timer;
 
   void onTick(Timer timer) {
     if (totalSeconds == 0) {
-      setState(() {
-        totalPomodoros = totalPomodoros + 1;
-        isRunning = false;
-        totalSeconds = twentyFiveMinutes;
-      });
-      timer.cancel();
+      totalPomodoros = totalPomodoros + 1;
+      onResetPressed();
     } else {
       setState(
         () {
@@ -41,6 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(
       () {
         isRunning = true;
+        isReady = false;
       },
     );
   }
@@ -50,6 +48,18 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(
       () {
         isRunning = false;
+        isReady = false;
+      },
+    );
+  }
+
+  void onResetPressed() {
+    timer.cancel();
+    setState(
+      () {
+        isRunning = false;
+        isReady = true;
+        totalSeconds = twentyFiveMinutes;
       },
     );
   }
@@ -81,15 +91,26 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           Flexible(
             flex: 3,
-            child: Center(
-              child: IconButton(
-                iconSize: 120,
-                color: Theme.of(context).cardColor,
-                onPressed: isRunning ? onPausePressed : onStartPressed,
-                icon: Icon(isRunning
-                    ? Icons.pause_circle_filled_outlined
-                    : Icons.play_circle_outline),
-              ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  iconSize: 120,
+                  color: Theme.of(context).cardColor,
+                  onPressed: isRunning ? onPausePressed : onStartPressed,
+                  icon: Icon(isRunning
+                      ? Icons.pause_circle_filled_outlined
+                      : Icons.play_circle_outline),
+                ),
+                IconButton(
+                  iconSize: 50,
+                  color: isReady
+                      ? Theme.of(context).disabledColor
+                      : Theme.of(context).cardColor,
+                  onPressed: isReady ? null : onResetPressed,
+                  icon: const Icon(Icons.restore),
+                ),
+              ],
             ),
           ),
           Flexible(
